@@ -1,4 +1,5 @@
-const Admin  = require("../models/adminModel")
+const Admin  = require("../models/adminModel");
+const Restaurant = require("../models/restaurantModel");
 const User = require("../models/userModel")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
@@ -82,3 +83,45 @@ exports.adminLogin = async (req, res) => {
      return res.status(500).json({ error: error.message });
  }
 };
+
+exports.updateStatus = async (req, res) => {
+  const {role} = req.user
+  try {
+if(role==="admin"){
+      const { restaurantId, status } = req.body;
+      // when we pass id in findbyidandupdate so that id is refer to _id directly we dont need to make key value pair
+      const restaurantResult = await Restaurant.findByIdAndUpdate(
+        restaurantId,
+        { status },
+        { new: true }
+      );
+
+      const userResult = await User.findOneAndUpdate(
+        { restaurantId: restaurantId },
+        { status },
+        { new: true }
+      );
+
+      if (!restaurantResult || !userResult) {
+        return res.status(404).send({
+          message: "Restaurant or User not found",
+        });
+      }
+
+      return res.status(200).send({
+        message: "Status updated successfully in both User and Restaurant",
+        restaurant: restaurantResult,
+        user: userResult,
+      });
+}
+else{
+  return res.status(400).send("You are not authorized to this")
+}
+  } catch (error) {
+    return res.status(500).send({
+      message: "Error updating status",
+      error: error.message,
+    });
+  }
+};
+

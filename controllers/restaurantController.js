@@ -7,7 +7,17 @@ const secretkey = process.env.JWT_SECRET_KEY;
 exports.createRestaurant = async(req,res)=>{
      try {
        console.log(req.body, ":::");
-       const { name, email, password, phone } = req.body;
+     const {
+       restaurantName,
+       ownerName,
+       email,
+       password,
+       phone,
+       address: { street, city, state, zip },
+       restaurantType,
+       openingHours: { open, close },
+       status
+     } = req.body;
        const alreadyEmail = await Restaurant.findOne({ email });
        if (alreadyEmail) {
          return res.status(400).send("This Email Already Used");
@@ -16,7 +26,18 @@ exports.createRestaurant = async(req,res)=>{
        const salt = bcrypt.genSaltSync(10);
        const hash = bcrypt.hashSync(password, salt);
 
-       const data = { name, email, password: hash, phone };
+       const data = {
+         restaurantName,
+         ownerName,
+         email,
+         password: hash, // Assume you hashed the original password
+         phone,
+         address: { street, city, state, zip },
+         restaurantType,
+         openingHours: { open, close },
+         status
+       };
+
        const newRestaurant = new Restaurant(data);
        const newData = await newRestaurant.save();
 
@@ -24,6 +45,7 @@ exports.createRestaurant = async(req,res)=>{
 
        const userdata = {
          ...data,
+         name:ownerName,
          role: "restaurant",
          restaurantId: newData._id,
        };
