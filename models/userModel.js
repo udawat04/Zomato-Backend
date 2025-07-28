@@ -11,11 +11,12 @@ const userSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    default: "pending",
+    default: "active",
     enum: ["pending", "rejected", "active"],
   },
+  image:{type:String},
   adminId: { type: mongoose.Schema.ObjectId, ref: "admin" },
-  restaurantId: { type: mongoose.Schema.ObjectId, ref: "restaurant" },
+  restaurantId: { type: mongoose.Schema.ObjectId, ref: "Restaurant" },
   deliveryBoyId: { type: mongoose.Schema.ObjectId, ref: "delivery-boy" },
 });
 

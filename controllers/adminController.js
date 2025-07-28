@@ -89,13 +89,14 @@ exports.updateStatus = async (req, res) => {
   try {
 if(role==="admin"){
       const { restaurantId, status } = req.body;
+      console.log(req.body)
       // when we pass id in findbyidandupdate so that id is refer to _id directly we dont need to make key value pair
       const restaurantResult = await Restaurant.findByIdAndUpdate(
         restaurantId,
         { status },
         { new: true }
       );
-
+      console.log(restaurantResult,"{{{{{{")
       const userResult = await User.findOneAndUpdate(
         { restaurantId: restaurantId },
         { status },

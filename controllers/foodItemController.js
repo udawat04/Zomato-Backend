@@ -33,3 +33,28 @@ exports.addFood = async(req,res)=>{
 
    return res.status(200).send(result)
 }
+
+exports.allItems = async(req,res)=>{
+  const result = await FoodItem.aggregate([
+    {
+      $lookup: {
+        from: "food-images",
+        localField: "_id",
+        foreignField: "foodItemId",
+        as: "images",
+      },
+    },
+    {
+      $lookup: {
+        from: "restaurants", // collection name
+        localField: "restaurantId", // the field in FoodItem
+        foreignField: "_id", // the _id in Restaurant collection
+        as: "restaurant",
+      },
+    },
+    {
+      $unwind: "$restaurant", // optional: turn restaurant array into object
+    },
+  ]);
+  return res.status(200).send(result)
+}
