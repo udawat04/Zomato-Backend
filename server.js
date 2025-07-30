@@ -10,6 +10,7 @@ const restRoute = require("./routes/restaurantRoute")
 const delboy = require("./routes/deliveryBoyRoutes")
 const usersRoute = require("./routes/userRoute")
 const foodItem = require("./routes/foodItemRoutes");
+const addCart = require("./routes/addCartRoute")
 
 
 // Connect to MongoDB
@@ -29,6 +30,7 @@ app.use("/rest",restRoute)
 app.use("/delivery-boy",delboy)
 app.use("/users",usersRoute)
 app.use("/food-item",foodItem)
+app.use("/cart",addCart)
 
 app.listen(PORT,()=>{
     console.log(`Server is running on ${PORT}`);

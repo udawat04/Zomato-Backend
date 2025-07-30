@@ -20,6 +20,7 @@ exports.createUser = async(req,res)=>{
         // console.log(imageUpload[0].url);
 
         const data = { name, email, password: hash, phone ,role:"user",image:imageUpload[0].url };
+        console.log(data,"asmksm")
         const newUser = new User(data);
        await newUser.save();
 

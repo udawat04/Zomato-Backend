@@ -9,66 +9,81 @@ exports.createRestaurant = async(req,res)=>{
      try {
        console.log(req.body, ":::");
        console.log(req.files)
-    //  const {
-    //    restaurantName,
-    //    ownerName,
-    //    email,
-    //    password,
-    //    phone,
-    //    address: { street, city, state, zip },
-    //    restaurantType,
-    //    openingHours: { open, close },
-    //    status
-    //  } = req.body;
-    //  console.log(address)
-    //    const alreadyEmail = await Restaurant.findOne({ email });
-    //    if (alreadyEmail) {
-    //      return res.status(400).send("This Email Already Used");
-    //    }
-
-    //    const salt = bcrypt.genSaltSync(10);
-    //    const hash = bcrypt.hashSync(password, salt);
-
-    // console.log(req.files)
+     const {
+       restaurantName,
+       ownerName,
+       email,
+       password,
+       phone,
+      street, 
+      city, 
+      state,
+      zip ,
+       restaurantType,
+      open, 
+      close,
+     } = req.body;
     
-    //    const imageUpload = await uploadImage(req.files)
-    //    console.log(imageUpload,"jdsjdks")
-    //    const images =[]
-    //    imageUpload.forEach(item => {
-    //     images.push(item.url)
-    //    });
+       const alreadyEmail = await Restaurant.findOne({ email });
+       if (alreadyEmail) {
+         return res.status(400).send("This Email Already Used");
+       }
 
-    //    console.log(images)
-    //    const data = {
-    //      restaurantName,
-    //      ownerName,
-    //      email,
-    //      password: hash, // Assume you hashed the original password
-    //      phone,
-    //      address: { street, city, state, zip },
-    //      restaurantType,
-    //      openingHours: { open, close },
-    //      status
-    //    };
+       const salt = bcrypt.genSaltSync(10);
+       const hash = bcrypt.hashSync(password, salt);
 
-    //    const newRestaurant = new Restaurant(data);
-    //    const newData = await newRestaurant.save();
+    console.log(req.files)
+    
+       const imageUpload = await uploadImage(req.files)
+       console.log(imageUpload,"jdsjdks")
+       const images =[]
+       imageUpload.forEach(item => {
+        images.push(item.url)
+       });
 
-    //    console.log(newData, "newdata");
+       console.log(images)
+       const data = {
+         restaurantName,
+         ownerName,
+         email,
+         password: hash, // Assume you hashed the original password
+         phone,
+         address: { street, city, state, zip },
+         restaurantType,
+         openingHours: { open, close },
+         status:"pending",
+         image:images
+       };
+        
+       
 
-    //    const userdata = {
-    //      ...data,
-    //      name:ownerName,
-    //      role: "restaurant",
-    //      restaurantId: newData._id,
-    //    };
+       const newRestaurant = new Restaurant(data);
+       const newData = await newRestaurant.save();
 
-    //    const newUser = new User(userdata);
-    //    await newUser.save();
+       console.log(newData, "newdata");
 
-    //    return res
-    //      .status(200)
-    //      .json({ message: "Restaurant is created", newRestaurant, newUser });
+       const userdata = {
+         name: ownerName,
+         role: "restaurant",
+         restaurantId: newData._id,
+         restaurantName,
+         ownerName,
+         email,
+         password: hash, // Assume you hashed the original password
+         phone,
+         address: { street, city, state, zip },
+         restaurantType,
+         openingHours: { open, close },
+         status: "pending",
+         restImage: images,
+       };
+
+       const newUser = new User(userdata);
+       await newUser.save();
+
+       return res
+         .status(200)
+         .json({ message: "Restaurant is created", newRestaurant, newUser });
      } catch (error) {
        return res.status(500).json({ error: error.message });
      }
@@ -77,15 +92,12 @@ exports.createRestaurant = async(req,res)=>{
 
 // All Restaurant get Api 
 exports.allRestaurant = async (req, res) => {
-  const user = req.user
+ 
   try {
-   if(user.role==="admin" || user.role==="restaurant"){
+   
      const result = await Restaurant.find();
      return res.status(200).send(result);
-   }
-   else{
-    return res.status(200).send("You are not authorized to this");
-   }
+   
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }

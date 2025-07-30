@@ -1,4 +1,4 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
   name: { type: String },
@@ -14,11 +14,18 @@ const userSchema = new mongoose.Schema({
     default: "active",
     enum: ["pending", "rejected", "active"],
   },
-  image:{type:String},
+  image: { type: String },
+
+  // If no value is provided, this field won't be saved
+  restImage: {
+    type: [String],
+    default: undefined,
+  },
+
   adminId: { type: mongoose.Schema.ObjectId, ref: "admin" },
   restaurantId: { type: mongoose.Schema.ObjectId, ref: "Restaurant" },
   deliveryBoyId: { type: mongoose.Schema.ObjectId, ref: "delivery-boy" },
 });
 
-const User = mongoose.model("user",userSchema)
-module.exports = User
+const User = mongoose.model("user", userSchema);
+module.exports = User;
