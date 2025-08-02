@@ -55,9 +55,20 @@ exports.allAddress = async(req,res)=>{
   const result = await UserAddress.find()
   return res.status(200).send(result)
 }
-exports.addressById = async(req,res)=>{
-  const {id} = req.params
-  console.log(id)
-  const result = await UserAddress.findById({_id:id})
-  return res.status(200).send(result)
-}
+exports.addressById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(id);
+
+    const result = await UserAddress.find({ userId: id }).populate("userId");
+    if (!result) {
+      return res.status(404).send({ message: "Address not found" });
+    }
+
+    console.log(result);
+    return res.status(200).send(result);
+  } catch (error) {
+    console.error("Error fetching address by id:", error);
+    return res.status(500).send({ message: "Server error" });
+  }
+};

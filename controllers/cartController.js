@@ -1,4 +1,5 @@
 const Cart = require("../models/addCartModel")
+const FoodItem = require("../models/foodItemModel")
 
 exports.addToCart = async(req,res)=>{
     const user = req.user
@@ -31,6 +32,28 @@ exports.deleteCart = async(req,res)=>{
 }
 
 exports.allCartItem = async(req,res)=>{
-    const result = await Cart.find()
+    const result = await Cart.aggregate([
+      {
+        $lookup: {
+          from: "food-items",
+          localField: "itemId",
+          foreignField: "_id",
+          as: "itemId",
+        },
+      },
+      {
+        $unwind: "$itemId", // optional: turn restaurant array into object
+      },
+      {
+        $lookup: {
+          from: "food-images",
+          localField: "itemId._id",
+          foreignField: "foodItemId",
+          as: "images",
+        },
+      },
+    ]);
+ 
+  
     return res.status(200).send(result)
 }
