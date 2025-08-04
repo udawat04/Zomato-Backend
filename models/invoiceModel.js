@@ -1,10 +1,12 @@
+const moment = require("moment");
 const mongoose = require("mongoose")
 
 const invoiceSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.ObjectId, ref: "user" },
   addressId: { type: mongoose.Schema.ObjectId, ref: "user-address" },
-  total:{type:String},
-  date:{type:String , default:()=>moment().toDate()}
+  total:{type:Number},
+  date:{type:String , default:()=>moment().toDate()},
+  status:{type:String , enum:["pending","on the way","delivered","canceled"],default:"pending"}
 });
 
 const Invoice = mongoose.model("invoice",invoiceSchema)
