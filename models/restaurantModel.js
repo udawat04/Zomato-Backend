@@ -23,6 +23,7 @@ const restaurantSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      minlength: 6, 
     },
     phone: {
       type: String,
@@ -30,7 +31,7 @@ const restaurantSchema = new mongoose.Schema(
       trim: true,
     },
     image: {
-      type: [String],
+      type: [String], 
       default: [],
     },
     address: {
@@ -39,6 +40,10 @@ const restaurantSchema = new mongoose.Schema(
       state: { type: String, trim: true, lowercase: true, default: "" },
       zip: { type: String, trim: true, default: "" },
     },
+    location: {
+      latitude: { type: Number, default: null },
+      longitude: { type: Number, default: null },
+    },
     restaurantType: {
       type: String,
       enum: ["Vegetarian", "Non-Vegetarian", "Vegan", "Mixed"],
@@ -46,8 +51,8 @@ const restaurantSchema = new mongoose.Schema(
       trim: true,
     },
     openingHours: {
-      open: { type: String, trim: true, default: "" },
-      close: { type: String, trim: true, default: "" },
+      open: { type: String, trim: true, default: "" }, 
+      close: { type: String, trim: true, default: "" }, 
     },
     status: {
       type: String,
@@ -55,11 +60,17 @@ const restaurantSchema = new mongoose.Schema(
       enum: ["pending", "rejected", "active"],
       trim: true,
     },
+
+    
+    rating: {
+      average: { type: Number, default: 0, min: 0, max: 5 },
+      totalReviews: { type: Number, default: 0 },
+    },
   },
   {
     timestamps: true,
   }
 );
 
-const Restaurant = mongoose.model("Restaurant", restaurantSchema);
+const Restaurant = mongoose.model("restaurant", restaurantSchema);
 module.exports = Restaurant;

@@ -21,9 +21,16 @@ const userSchema = new mongoose.Schema({
     type: [String],
     default: undefined,
   },
-
+  dbImage: {
+    type: String,
+    default: undefined,
+  },
+  location: {
+    latitude: { type: Number },
+    longitude: { type: Number },
+  },
   adminId: { type: mongoose.Schema.ObjectId, ref: "admin" },
-  restaurantId: { type: mongoose.Schema.ObjectId, ref: "Restaurant" },
+  restaurantId: { type: mongoose.Schema.ObjectId, ref: "restaurant" },
   deliveryBoyId: { type: mongoose.Schema.ObjectId, ref: "delivery-boy" },
 });
 

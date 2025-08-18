@@ -7,7 +7,7 @@ const secretkey = process.env.JWT_SECRET_KEY;
 exports.createUser = async(req,res)=>{
       try {
         console.log(req.body, ":::");
-        const { name, email, password, phone } = req.body;
+        const { name, email, password, phone,latitude,longitude } = req.body;
         const alreadyEmail = await User.findOne({ email });
         if (alreadyEmail) {
           return res.status(400).send("This Email Already Used");
@@ -19,7 +19,7 @@ exports.createUser = async(req,res)=>{
         const imageUpload = await uploadImage(req.files)
         // console.log(imageUpload[0].url);
 
-        const data = { name, email, password: hash, phone ,role:"user",image:imageUpload[0].url };
+        const data = { name, email, password: hash, phone ,role:"user",image:imageUpload[0].url,location:{latitude,longitude} };
         console.log(data,"asmksm")
         const newUser = new User(data);
        await newUser.save();
@@ -37,9 +37,12 @@ exports.createUser = async(req,res)=>{
 // All Users get Api 
 exports.allUsers = async (req, res) => {
   const user = req.user
+
   try {
    if(user.role==="admin"){
+    console.log("in admin")
      const result = await User.find().populate("restaurantId");
+     console.log(result)
      return res.status(200).send(result);
    }
 if (user.role === "user") {
@@ -98,7 +101,17 @@ exports.userLogin = async (req, res) => {
             as: "addresses",
           },
         },
+        {
+          $lookup: {
+            from: "restaurants",
+            localField: "restaurantId",
+            foreignField: "_id",
+            as: "restaurant",
+          },
+        },
+        { $unwind: { path: "$restaurant", preserveNullAndEmptyArrays: true } },
       ]);
+      console.log(result,"----")
 
      return res
        .status(200)

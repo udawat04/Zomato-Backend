@@ -5,9 +5,7 @@ exports.addToCart = async(req,res)=>{
     const user = req.user
     const {itemId} = req.body
     const alreadyItem = await Cart.findOne({itemId})
-    if(alreadyItem){
-        return res.status(400).send("Item Already in Cart")
-    }
+   
     const data = {userId:user._id,itemId,}
     const newCart = new Cart(data)
     await newCart.save()
@@ -32,7 +30,10 @@ exports.deleteCart = async(req,res)=>{
 }
 
 exports.allCartItem = async(req,res)=>{
+  const user = req.user
+  console.log(user,"kkkk")
     const result = await Cart.aggregate([
+      { $match: { userId: user._id } },
       {
         $lookup: {
           from: "food-items",

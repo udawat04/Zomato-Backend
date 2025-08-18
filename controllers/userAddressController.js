@@ -52,11 +52,15 @@ exports.updateAddress = async(req,res)=>{
 }
 
 exports.allAddress = async(req,res)=>{
-  const result = await UserAddress.find()
+  const user = req.user;
+  console.log(user);
+  const result = await UserAddress.find({ userId: user._id }).populate("userId");
   return res.status(200).send(result)
 }
 exports.addressById = async (req, res) => {
   try {
+    const user = req.user
+    console.log(user)
     const { id } = req.params;
     console.log(id);
 
