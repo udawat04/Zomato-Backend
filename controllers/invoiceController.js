@@ -51,13 +51,32 @@ exports.invoiceById = async(req,res)=>{
         },
         {
           $lookup: {
+            from: "delivery-boys",
+            localField: "deliveredBy",
+            foreignField: "_id",
+            as: "deliveredBy",
+          },
+        },
+        {
+          $unwind: {
+            path: "$deliveredBy",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
             from: "user-addresses",
             localField: "addressId",
             foreignField: "_id",
             as: "address",
           },
         },
-        { $unwind: "$address" },
+        {
+          $unwind: {
+            path: "$address",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
         {
           $lookup: {
             from: "users",
@@ -66,7 +85,12 @@ exports.invoiceById = async(req,res)=>{
             as: "users",
           },
         },
-        { $unwind: "$orders" }, // Flatten orders for filtering
+        {
+          $unwind: {
+            path: "$orders",
+            preserveNullAndEmptyArrays: true,
+          },
+        }, // Flatten orders for filtering
         {
           $match: {
             "orders.userId": new mongoose.Types.ObjectId(user._id),
@@ -81,7 +105,12 @@ exports.invoiceById = async(req,res)=>{
             as: "orders.item",
           },
         },
-        { $unwind: "$orders.item" },
+        {
+          $unwind: {
+            path: "$orders.item",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
         {
           $lookup: {
             from: "restaurants",
@@ -90,11 +119,17 @@ exports.invoiceById = async(req,res)=>{
             as: "orders.restaurant",
           },
         },
-        { $unwind: "$orders.restaurant" },
+        {
+          $unwind: {
+            path: "$orders.restaurant",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
         {
           $group: {
             _id: "$_id",
             userId: { $first: "$userId" },
+            deliveredBy: { $first: "$deliveredBy" },
             users: { $first: "$users" },
             address: { $first: "$address" },
             date: { $first: "$date" },
@@ -129,7 +164,11 @@ exports.invoiceById = async(req,res)=>{
              as: "address",
            },
          },
-         { $unwind: "$address" },
+         { $unwind: {
+              path:"$address",
+             preserveNullAndEmptyArrays: true,
+            }
+          },
          {
            $lookup: {
              from: "users",
@@ -195,10 +234,32 @@ exports.invoiceById = async(req,res)=>{
    
 }
 
-exports.updateInvoiceStatus = async(req,res)=>{
-  const {id} = req.params
-  const {status} = req.body
-  console.log(id,status,"000000")
-  const result = await Invoice.findByIdAndUpdate({_id:id},{status:status},{new:true})
-return res.status(200).send(result)
-}
+exports.updateInvoiceStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, dbId } = req.body;
+    console.log(req.body)
+
+    console.log(id, typeof status, dbId, "000000");
+
+    let updateFields = { status };
+
+    // Agar delivered hai to deliveredBy bhi add/update karo
+    if (status === "delivered" && dbId) {
+      console.log("in the delivery section");
+      updateFields.deliveredBy = dbId;
+    }
+
+    const result = await Invoice.findByIdAndUpdate(
+      id, // 👈 sirf id pass karo
+      updateFields, // 👈 saare update ek object me bhejo
+      { new: true }
+    );
+
+    console.log(result, "kkkkk");
+    return res.status(200).send(result);
+  } catch (error) {
+    console.error("Update Error:", error);
+    return res.status(500).send({ error: "Something went wrong" });
+  }
+};

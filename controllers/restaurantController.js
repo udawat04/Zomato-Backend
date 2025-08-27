@@ -1,4 +1,6 @@
 const { uploadImage } = require("../helper/cloudinary");
+const { findNearbyDeliveryBoys } = require("../helper/findNearbyDb");
+const nearbyDb = require("../models/nearbyDeliveryBoy");
 const Restaurant = require("../models/restaurantModel");
 const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
@@ -45,7 +47,7 @@ exports.createRestaurant = async (req, res) => {
       console.log(hour, min);
     } else if (close < "12:00") {
       closeAt = close + " " + "AM";
-      console.log(op);
+     
     }
 
     console.log(openAt, "opennn");
@@ -211,3 +213,47 @@ exports.updateRestaurant = async (req, res) => {
   await User.findByIdAndUpdate({_id:user._id},data,{new:true})
   return res.status(200).send(result);
 };
+
+exports.findDeliveryBoy = async(req,res)=>{
+ try {
+  const {invoiceId} = req.body
+  console.log(invoiceId,"invoiceIddd")
+   const user = req.user;
+   const restaurantId = user.restaurantId;
+
+   const restaurant = await Restaurant.findById({ _id: restaurantId });
+   const { latitude, longitude } = restaurant.location;
+  //  console.log("333333333", latitude, longitude, "33333333");
+   const nearbyDeliveryBoys = await findNearbyDeliveryBoys(
+     latitude,
+     longitude,
+     4000
+   ); // 2000 meters (2km)
+  
+   nearbyDeliveryBoys.forEach(async(item) => {
+    const already = await nearbyDb.findOne({dbId:item.dbId._id,invoiceId:invoiceId})
+    console.log(already)
+   
+    // yaha already ka status check karwana he pending ho to return ho jaaye 
+    if(already)
+      {
+         console.log("not run");
+     return;
+      } 
+        
+    
+     const data = {
+       location: item.location,
+       dbId: item.dbId._id,
+       dbName: item.dbId.name,
+       invoiceId: invoiceId,
+     };
+      const nearby = new nearbyDb(data);
+      await nearby.save()
+   });
+  
+   return res.status(200).send(nearbyDeliveryBoys)
+ } catch (error) {
+  return res.status(400).json({error:error.message})
+ }
+}

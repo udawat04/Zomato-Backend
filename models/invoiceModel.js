@@ -3,6 +3,7 @@ const mongoose = require("mongoose")
 
 const invoiceSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.ObjectId, ref: "user" },
+  deliveredBy:{type:mongoose.Schema.ObjectId,ref:"delivery-boy"},
   addressId: { type: mongoose.Schema.ObjectId, ref: "user-address" },
   total:{type:Number},
   date:{type:String , default:()=>moment().toDate()},

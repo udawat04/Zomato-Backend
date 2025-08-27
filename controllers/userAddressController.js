@@ -64,7 +64,7 @@ exports.addressById = async (req, res) => {
     const { id } = req.params;
     console.log(id);
 
-    const result = await UserAddress.find({ userId: id }).populate("userId");
+    const result = await UserAddress.find({ _id: id }).populate("userId");
     if (!result) {
       return res.status(404).send({ message: "Address not found" });
     }

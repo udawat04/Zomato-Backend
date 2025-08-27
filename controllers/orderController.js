@@ -31,16 +31,19 @@ exports.restaurantOrders = async (req, res) => {
 
 exports.updateOrderStatus = async(req,res)=>{
   const {orderIds,status} =req.body
-  console.log(req.body)
-let result=[]
+  console.log(req.body,"order body")
+let results=[]
   orderIds.forEach(async(id) => {
-     result = await Order.findByIdAndUpdate({_id:id},{status:status},{new:true})
-     console.log(result)
+     let result = await Order.findByIdAndUpdate({_id:id},{status:status},{new:true})
+     results.push(result)
+    //  console.log(result,"updated result of order status")
     
   });
-  return res.status(200).send(result);
+  return res.status(200).send(results);
 
 }
+
+
 
 exports.allOrders = async(req,res)=>{
 
@@ -61,4 +64,7 @@ exports.allOrders = async(req,res)=>{
     return res.status(500).json({error:error.message});
   }
 }
+
+
+
 
